@@ -12,22 +12,32 @@ lsvenv(){
     ls $VENV_HOME
 }
 
+complete -W "$(lsvenv)" venv
 
 venv() {
   if [ $# -eq 0 ]
     then
-      echo "Provide venv name"
+      echo "Please provide venv name"
     else
-      source "$VENV_HOME/$1/bin/activate"
+      if [[ -d "$VENV_HOME/$1" ]]
+        then
+          source "$VENV_HOME/$1/bin/activate"
+        else
+          read -p "Venv doens't exist. Create new one? [Y/n]: " b
+          if [[ "$b" == "" ]] || [[ "$b" == "Y" ]] || [[ "$b" == "y" ]]
+            then
+              mkvenv "$1"
+              source "$VENV_HOME/$1/bin/activate"  
+          fi
+      fi
   fi
 }
 
-complete -W "$(lsvenv)" venv
 
 mkvenv() {
   if [ $# -eq 0 ]
     then
-      echo "Provide venv name"
+      echo "Please provide venv name"
     else
       python3.7 -m venv $VENV_HOME/$1
       complete -W "$(lsvenv)" venv
@@ -37,7 +47,7 @@ mkvenv() {
 rmvenv() {
   if [ $# -eq 0 ]
     then
-      echo "Provide venv name"
+      echo "Please provide venv name"
     else
       rm -r $VENV_HOME/$1
   fi
